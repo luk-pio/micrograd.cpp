@@ -1,6 +1,21 @@
-#include <iostream>  // Include the input/output stream library
+#include <iostream>
+#include <string>
+
+class Value {
+	public:
+		int data;
+		Value(int d) {
+			data = d;
+		}
+		
+		friend std::ostream& operator<<(std::ostream& os, const Value& value) {
+			os << "Value(data: " << value.data << ")"; 
+			return os;
+		}
+};
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;  // Output text to the console
-    return 0;  // Indicate that the program ended successfully
+	Value value(1);
+	std::cout << value << std::endl;
+	return 0;
 }
