@@ -3,9 +3,9 @@
 
 class Value {
 public:
-    int data;
+    double data;
 
-    explicit Value(int d);
+    explicit Value(double d);
 
     friend std::ostream& operator<<(std::ostream& os, const Value& value);
 };

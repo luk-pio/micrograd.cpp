@@ -2,11 +2,8 @@
 A reimplementation of [Microcgrad](https://github.com/karpathy/micrograd) in c++ for educational purposes
 
 ## Prerequisites
+- >= cmake3(.14)
 
 ## Development
-
-```
-cmake3 -S . -B build
-cmake3 --build build
-(cd build && ctest)
-```
+- Building. First create the cmake build dir: `cmake3 -S . -B build`. Next run the build itself: `cmake3 --build build`
+- Running tests `cmake --build build --target test`
