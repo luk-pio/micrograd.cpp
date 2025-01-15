@@ -8,5 +8,7 @@ public:
     explicit Value(float d);
     friend std::ostream& operator<<(std::ostream& os, const Value& value);
     friend Value operator+(const Value& value1, const Value& value2);
+    friend Value operator-(const Value& value1);
+    friend Value operator-(const Value& value1, const Value& value2);
 };
 
