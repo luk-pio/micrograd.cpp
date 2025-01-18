@@ -34,7 +34,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(
 	test_mg
-  tests/example.cc
+  tests/value.cc
 )
 target_include_directories(
 	test_mg

@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <micrograd.h>
 
 int main() {
