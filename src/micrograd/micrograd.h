@@ -10,5 +10,7 @@ public:
     friend Value operator+(const Value& value1, const Value& value2);
     friend Value operator-(const Value& value1);
     friend Value operator-(const Value& value1, const Value& value2);
+    friend Value operator*(const Value& value1, const Value& value2);
+    friend Value operator/(const Value& value1, const Value& value2);
 };
 

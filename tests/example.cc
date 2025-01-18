@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <cmath>
 #include <micrograd.h>
 
 TEST(value_class, initializes_with_a_float) {
@@ -54,5 +55,42 @@ TEST(value_class, binary_minus_operator_substracts_a_negative_from_positive) {
   Value three(-3);
 
   ASSERT_FLOAT_EQ((two - three).data, 5);
+}
+
+
+TEST(value_class, multiplication_operator_multiplies_positive_numbers) {
+  Value two(2);
+  Value three(3);
+
+  ASSERT_FLOAT_EQ((two * three).data, 6);
+}
+
+TEST(value_class, multiplication_operator_multiplies_negative_numbers) {
+  Value two(2);
+  Value three(3);
+
+  ASSERT_FLOAT_EQ((two * (-three)).data, -6);
+}
+
+
+TEST(value_class, division_operator_divides_whole_numbers) {
+  Value six(6);
+  Value three(3);
+
+  ASSERT_FLOAT_EQ((six / three).data, 2);
+}
+
+TEST(value_class, division_operator_infty_when_dividing_by_zero) {
+  Value two(2);
+  Value zero(0);
+
+  ASSERT_FLOAT_EQ((two / zero).data, +INFINITY);
+}
+
+TEST(value_class, division_operator_divides_decimal) {
+  Value four_eight(4.8);
+  Value three(3);
+
+  ASSERT_FLOAT_EQ((four_eight / three).data, 1.6);
 }
 
