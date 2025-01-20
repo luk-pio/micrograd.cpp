@@ -8,18 +8,59 @@ TEST(value_class, initializes_with_a_float) {
   ASSERT_FLOAT_EQ(value.data, 2.2);
 }
 
-TEST(value_class, correctly_prints_no_decimal) {
+TEST(value_class, correctly_streams_no_decimal) {
   Value value(2);
   std::ostringstream oss;
   oss << value;
-  EXPECT_EQ(oss.str(), "Value(data: 2)");
+  EXPECT_EQ(oss.str(), "(v: 2, g: 0)");
 }
 
-TEST(value_class, correctly_prints_with_decimal) {
+TEST(value_class, correctly_streams_with_decimal) {
   Value value(2.2);
   std::ostringstream oss;
   oss << value;
-  EXPECT_EQ(oss.str(), "Value(data: 2.2)");
+  EXPECT_EQ(oss.str(), "(v: 2.2, g: 0)");
+}
+
+TEST(value_class, correctly_streams_grad_set_to_decimal) {
+  Value value(2.2);
+  value.grad = 3.2;
+  std::ostringstream oss;
+  oss << value;
+  EXPECT_EQ(oss.str(), "(v: 2.2, g: 3.2)");
+}
+
+TEST(value_class, correctly_streams_with_operator) {
+  Value value(2.2, {OperatorType::SubtractionUnary});
+  std::ostringstream oss;
+  oss << value;
+  EXPECT_EQ(oss.str(), "[-](v: 2.2, g: 0)");
+}
+
+TEST(value_class, correctly_prints_graph_without_operator) {
+  Value value(2.2);
+  std::ostringstream oss;
+  value.print_graph(oss);
+  EXPECT_EQ(oss.str(), "(v: 2.2, g: 0)\n");
+}
+
+TEST(value_class, correctly_prints_graph_with_unary_operator) {
+  Value value(2.2);
+  Value minusValue = -value;
+  std::ostringstream oss;
+  minusValue.print_graph(oss);
+  EXPECT_EQ(oss.str(),
+            "(v: 2.2, g: 0)\n(v: 2.2, g: 0) -> [-](v: -2.2, g: 0)\n");
+}
+
+TEST(value_class, correctly_prints_graph_with_binary_operator) {
+  Value two(2);
+  Value three(3);
+  Value added = two + three;
+  std::ostringstream oss;
+  added.print_graph(oss);
+  EXPECT_EQ(oss.str(), "(v: 2, g: 0)\n(v: 2, g: 0) -> [+](v: 5, g: 0)\n"
+                       "(v: 3, g: 0)\n(v: 3, g: 0) -> [+](v: 5, g: 0)\n");
 }
 
 // Addition
@@ -41,7 +82,7 @@ TEST(value_class, addition_creates_links_to_parent_values) {
   Value three(-3);
   Value result = two + three;
 
-  ASSERT_EQ(result.operation.op, Operator::Addition);
+  ASSERT_EQ(result.operation.op, OperatorType::Addition);
   ASSERT_EQ(result.operation.left, &two);
   ASSERT_EQ(result.operation.right, &three);
 }
@@ -73,7 +114,7 @@ TEST(value_class, unary_subtraction_creates_links_to_parent_values) {
   Value two(2);
   Value result = -two;
 
-  ASSERT_EQ(result.operation.op, Operator::SubtractionUnary);
+  ASSERT_EQ(result.operation.op, OperatorType::SubtractionUnary);
   ASSERT_EQ(result.operation.left, &two);
   ASSERT_EQ(result.operation.right, nullptr);
 }
@@ -83,7 +124,7 @@ TEST(value_class, binary_subtraction_creates_links_to_parent_values) {
   Value three(3);
   Value result = two - three;
 
-  ASSERT_EQ(result.operation.op, Operator::SubtractionBinary);
+  ASSERT_EQ(result.operation.op, OperatorType::SubtractionBinary);
   ASSERT_EQ(result.operation.left, &two);
   ASSERT_EQ(result.operation.right, &three);
 }
@@ -109,7 +150,7 @@ TEST(value_class, binary_multiplication_creates_links_to_parent_values) {
   Value three(3);
   Value result = two * three;
 
-  ASSERT_EQ(result.operation.op, Operator::Multiplication);
+  ASSERT_EQ(result.operation.op, OperatorType::Multiplication);
   ASSERT_EQ(result.operation.left, &two);
   ASSERT_EQ(result.operation.right, &three);
 }
@@ -141,7 +182,7 @@ TEST(value_class, binary_division_creates_links_to_parent_values) {
   Value three(3);
   Value result = two / three;
 
-  ASSERT_EQ(result.operation.op, Operator::Division);
+  ASSERT_EQ(result.operation.op, OperatorType::Division);
   ASSERT_EQ(result.operation.left, &two);
   ASSERT_EQ(result.operation.right, &three);
 }
