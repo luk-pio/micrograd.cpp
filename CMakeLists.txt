@@ -47,4 +47,8 @@ target_link_libraries(
 	micrograd
 )
 include(GoogleTest)
-gtest_discover_tests(test_mg)
+gtest_discover_tests(
+  test_mg
+  DISCOVERY TIMEOUT 30
+  EXTRA_ARGS --gtest_color=yes --gtest_output=xml:test_results.xml
+)
