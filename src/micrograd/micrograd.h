@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <array>
 #include <iostream>
 
@@ -31,11 +32,14 @@ public:
   };
   // Assuming that float has enough precision and we don't
   // care about overflow
+  // TODO: Make these private and add accessor
   float data;
-  float grad = 0;
+  mutable float grad = 0;
   Operation operation;
   explicit Value(float _d);
   explicit Value(float _d, Operation _operation);
+  void set_backward(std::function<void(float)> backward);
+  void Backward();
   friend Value operator+(const Value &left, const Value &right);
   friend Value operator-(const Value &left);
   friend Value operator-(const Value &left, const Value &right);
@@ -43,4 +47,6 @@ public:
   friend Value operator/(const Value &left, const Value &right);
   friend std::ostream &operator<<(std::ostream &os, const Value &value);
   std::ostream &print_graph(std::ostream &os) const;
+private: 
+  std::function<void(float)> backward_;
 };
