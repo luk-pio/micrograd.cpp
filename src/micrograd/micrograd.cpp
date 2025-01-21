@@ -6,26 +6,45 @@ Value::Value(float _d) : data(_d) {}
 Value::Value(float _d, Operation _operation)
     : data(_d), operation(_operation) {}
 
+void Value::set_backward(std::function<void(float)> backward) {
+  this->backward_ = backward;
+}
+
+void Value::Backward() { this->backward_(this->grad); }
+
 Value operator+(const Value &left, const Value &right) {
-  return Value(left.data + right.data, {OperatorType::Addition, &left, &right});
+  Value result(left.data + right.data, {OperatorType::Addition, &left, &right});
+  result.set_backward([&left, &right](float g) {
+    left.grad += g;
+    right.grad += g;
+  });
+  return result;
 }
 
 Value operator-(const Value &left, const Value &right) {
-  return Value(left.data - right.data,
+  Value result(left.data - right.data,
                {OperatorType::SubtractionBinary, &left, &right});
+  result.set_backward([&left, &right](float g) {
+    left.grad -= g;
+    right.grad -= g;
+  });
+  return result;
 }
 
 Value operator-(const Value &left) {
-  return Value(-left.data, {OperatorType::SubtractionUnary, &left, nullptr});
+  Value result(-left.data, {OperatorType::SubtractionUnary, &left, nullptr});
+  result.set_backward([&left](float g) { left.grad -= g; });
+  return result;
 }
 
 Value operator*(const Value &left, const Value &right) {
-  return Value(left.data * right.data,
+  Value result(left.data * right.data,
                {OperatorType::Multiplication, &left, &right});
-}
-
-Value operator/(const Value &left, const Value &right) {
-  return Value(left.data / right.data, {OperatorType::Division, &left, &right});
+  result.set_backward([&left, &right](float g) {
+    left.grad += right.data * g;
+    right.grad += left.data * g;
+  });
+  return result;
 }
 
 std::ostream &operator<<(std::ostream &os, const Value &value) {
@@ -40,7 +59,8 @@ std::ostream &operator<<(std::ostream &os, const Value &value) {
 }
 
 std::ostream &Value::print_graph(std::ostream &os) const {
-  // This function makes the very optimistic assumption that we will have no cycles
+  // This function makes the very optimistic assumption that we will have no
+  // cycles
   // TODO: handle cycles
 
   // Print the node, even if it has no edges

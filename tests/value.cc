@@ -87,6 +87,20 @@ TEST(value_class, addition_creates_links_to_parent_values) {
   ASSERT_EQ(result.operation.right, &three);
 }
 
+TEST(value_class, addition_correctly_calculates_gradients) {
+  Value two(2);
+  two.grad = 2;
+  Value three(3);
+  three.grad = 3;
+  Value result = two + three;
+  result.grad = 10;
+
+  result.Backward();
+  EXPECT_FLOAT_EQ(result.grad, 10);
+  EXPECT_FLOAT_EQ(two.grad, 12);
+  EXPECT_FLOAT_EQ(three.grad, 13);
+}
+
 // Subtraction
 TEST(value_class, unary_minus_operator_flips_sign) {
   Value two(2);
@@ -129,6 +143,17 @@ TEST(value_class, binary_subtraction_creates_links_to_parent_values) {
   ASSERT_EQ(result.operation.right, &three);
 }
 
+TEST(value_class, unary_subtraction_calculates_gradients) {
+  Value two(2);
+
+  Value result = -two;
+  result.grad = 10;
+
+  result.Backward();
+  EXPECT_FLOAT_EQ(result.grad, 10);
+  EXPECT_FLOAT_EQ(two.grad, -10);
+}
+
 // Multiplication
 TEST(value_class, multiplication_operator_multiplies_positive_numbers) {
   Value two(2);
@@ -155,34 +180,14 @@ TEST(value_class, binary_multiplication_creates_links_to_parent_values) {
   ASSERT_EQ(result.operation.right, &three);
 }
 
-// Division
-TEST(value_class, division_operator_divides_whole_numbers) {
-  Value six(6);
-  Value three(3);
-
-  ASSERT_FLOAT_EQ((six / three).data, 2);
-}
-
-TEST(value_class, division_operator_infty_when_dividing_by_zero) {
-  Value two(2);
-  Value zero(0);
-
-  ASSERT_FLOAT_EQ((two / zero).data, +INFINITY);
-}
-
-TEST(value_class, division_operator_divides_decimal) {
-  Value four_eight(4.8);
-  Value three(3);
-
-  ASSERT_FLOAT_EQ((four_eight / three).data, 1.6);
-}
-
-TEST(value_class, binary_division_creates_links_to_parent_values) {
+TEST(value_class, multiplication_calculates_gradient) {
   Value two(2);
   Value three(3);
-  Value result = two / three;
+  Value result = two * three;
+  result.grad = 10;
+  result.Backward();
 
-  ASSERT_EQ(result.operation.op, OperatorType::Division);
-  ASSERT_EQ(result.operation.left, &two);
-  ASSERT_EQ(result.operation.right, &three);
+  ASSERT_FLOAT_EQ(result.grad, 10);
+  ASSERT_FLOAT_EQ(two.grad, 30);
+  ASSERT_FLOAT_EQ(three.grad, 20);
 }
