@@ -1,6 +1,6 @@
 #pragma once
-#include <functional>
 #include <array>
+#include <functional>
 #include <iostream>
 
 enum class OperatorType {
@@ -10,6 +10,7 @@ enum class OperatorType {
   SubtractionBinary,
   Multiplication,
   Division,
+  ReLU,
   Count // Defines the number of entries for use in map
 };
 
@@ -19,8 +20,13 @@ struct OperatorInfo {
 };
 
 const std::array<OperatorInfo, static_cast<size_t>(OperatorType::Count)>
-    operatorArray = {
-        {{"NoOp", 2}, {"+", 2}, {"-", 2}, {"-", 2}, {"*", 2}, {"/", 2}}};
+    operatorArray = {{{"NoOp", 2},
+                      {"+", 2},
+                      {"-", 2},
+                      {"-", 2},
+                      {"*", 2},
+                      {"/", 2},
+                      {"ReLU", 1}}};
 
 class Value {
 public:
@@ -40,6 +46,7 @@ public:
   explicit Value(float _d, Operation _operation);
   void set_backward(std::function<void(float)> backward);
   void Backward();
+  Value ReLU();
   friend Value operator+(const Value &left, const Value &right);
   friend Value operator-(const Value &left);
   friend Value operator-(const Value &left, const Value &right);
@@ -47,6 +54,7 @@ public:
   friend Value operator/(const Value &left, const Value &right);
   friend std::ostream &operator<<(std::ostream &os, const Value &value);
   std::ostream &print_graph(std::ostream &os) const;
-private: 
+
+private:
   std::function<void(float)> backward_;
 };

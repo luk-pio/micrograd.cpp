@@ -1,4 +1,5 @@
 #include "gtest/gtest.h"
+#include <algorithm>
 #include <cmath>
 #include <micrograd.h>
 
@@ -190,4 +191,45 @@ TEST(value_class, multiplication_calculates_gradient) {
   ASSERT_FLOAT_EQ(result.grad, 10);
   ASSERT_FLOAT_EQ(two.grad, 30);
   ASSERT_FLOAT_EQ(three.grad, 20);
+}
+
+// Multiplication
+TEST(value_class, ReLU_operator_returns_value_for_positive) {
+  Value two(2);
+
+  ASSERT_FLOAT_EQ(two.ReLU().data, 2);
+}
+
+TEST(value_class, ReLU_operator_returns_zero_for_negative) {
+  Value minus_three(-3);
+
+  ASSERT_FLOAT_EQ(minus_three.ReLU().data, 0);
+}
+
+TEST(value_class, ReLU_operator_links_operands) {
+  Value two(2);
+  Value relu = two.ReLU();
+
+  ASSERT_EQ(relu.operation.op, OperatorType::ReLU);
+  ASSERT_EQ(relu.operation.left, &two);
+}
+
+TEST(value_class, ReLU_calculates_gradient_when_value_is_positive) {
+  Value two(2);
+  Value result = two.ReLU();
+  result.grad = 10;
+  result.Backward();
+
+  ASSERT_FLOAT_EQ(result.grad, 10);
+  ASSERT_FLOAT_EQ(two.grad, 10);
+}
+
+TEST(value_class, ReLU_calculates_gradient_when_value_is_negative) {
+  Value minus_three(-3);
+  Value result = minus_three.ReLU();
+  result.grad = 10;
+  result.Backward();
+
+  ASSERT_FLOAT_EQ(result.grad, 10);
+  ASSERT_FLOAT_EQ(minus_three.grad, 0);
 }

@@ -47,6 +47,13 @@ Value operator*(const Value &left, const Value &right) {
   return result;
 }
 
+Value Value::ReLU() {
+  Value result(this->data < 0 ? 0 : this->data, {OperatorType::ReLU, this, nullptr});
+  result.set_backward(
+      [this](float g) { this->grad += (this->data < 0 ? 0 : 1) * g; });
+  return result;
+}
+
 std::ostream &operator<<(std::ostream &os, const Value &value) {
   if (value.operation.op != OperatorType::NoOp) {
     os << "[" << operatorArray[static_cast<int>(value.operation.op)].name
